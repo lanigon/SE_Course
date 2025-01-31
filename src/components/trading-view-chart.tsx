@@ -29,6 +29,7 @@ export default function TradingViewChart({ symbol = "BTCUSDT" }) {
 
     function createWidget() {
       if (document.getElementById('tradingview-widget') && 'TradingView' in window) {
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new (window as any).TradingView.widget({
           autosize: true,
           symbol: symbol,
@@ -36,6 +37,7 @@ export default function TradingViewChart({ symbol = "BTCUSDT" }) {
           timezone: "Etc/UTC",
           theme: "dark",
           style: "1",
+
           locale: "en",
           enable_publishing: false,
           allow_symbol_change: true,
