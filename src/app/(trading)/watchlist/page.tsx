@@ -1,17 +1,36 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import CoinTable from "@/components/coin-table"
 import TradingViewChart from "@/components/trading-view-chart"
+import { useCurrentAccount } from "@mysten/dapp-kit"
+import useSWR from 'swr'
 
-// 假设这些是用户收藏的代币
-const watchlistCoins = [
-  { symbol: "BTC/USDT", price: "61,234.56", change: "+2.5%", volume: "25B", marketCap: "1.2T" },
-  { symbol: "ETH/USDT", price: "3,234.56", change: "+1.5%", volume: "15B", marketCap: "380B" },
-]
+const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 export default function WatchlistPage() {
+  const account = useCurrentAccount()
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null)
+  
+  // 获取收藏的代币列表（仅在已连接钱包时请求）
+  const { data: watchlistCoins, error, isLoading } = useSWR(
+    account?.address ? `/api/favorite?userId=${account.address}` : null,
+    fetcher
+  )
+
+  if (!account?.address) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Watchlist</h1>
+        <div className="text-center py-8 text-zinc-400">
+          请先连接钱包查看收藏列表
+        </div>
+      </div>
+    )
+  }
+
+  // 确保数据结构正确
+  const coins = Array.isArray(watchlistCoins) ? watchlistCoins : []
 
   return (
     <div className="space-y-6">
@@ -26,11 +45,21 @@ export default function WatchlistPage() {
       )}
 
       <div className="mt-6">
-        <CoinTable 
-          data={watchlistCoins}
-          onRowClick={(symbol) => setSelectedSymbol(symbol)}
-          showFavoriteButton
-        />
+        {isLoading ? (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-12 bg-zinc-800 rounded-lg animate-pulse" />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-red-500">Failed to load watchlist</div>
+        ) : (
+          <CoinTable 
+            data={coins}
+            onRowClick={(symbol) => setSelectedSymbol(symbol)}
+            showFavoriteButton
+          />
+        )}
       </div>
     </div>
   )

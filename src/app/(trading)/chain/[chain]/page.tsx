@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import CoinTable from "@/components/coin-table"
 import TradingViewChart from "@/components/trading-view-chart"
+import { useCurrentAccount } from "@mysten/dapp-kit"
 
 // 为每个链定义代币数据
 const chainData = {
@@ -35,11 +36,26 @@ export default function ChainPage({
 }: {
   params: { chain: string }
 }) {
+  const account = useCurrentAccount()
+  const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null)
   
   // 获取当前链的代币数据
   const coins = chainData[params.chain as keyof typeof chainData] || []
   const chainName = chainNames[params.chain as keyof typeof chainNames] || params.chain
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!account?.address) return
+      const res = await fetch(`/api/favorite?userId=${account.address}`)
+      if (res.ok) {
+        const data = await res.json()
+        const favoriteSymbols = new Set(data.map((f: { symbol: string }) => f.symbol))
+        setFavorites(favoriteSymbols as Set<string>)
+      }
+    }
+    fetchFavorites()
+  }, [account])
 
   return (
     <div className="space-y-6">
@@ -64,7 +80,7 @@ export default function ChainPage({
           {chainName} Tokens
         </h2>
         <CoinTable 
-          data={coins}
+          filterChain={params.chain}
           onRowClick={(symbol) => setSelectedSymbol(symbol)}
           showFavoriteButton
         />

@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    String   // 用户钱包地址
+  symbol    String   // 代币符号 如BTC/USDT
+  chain     String?  // 所属链
+  createdAt DateTime @default(now())
+} 

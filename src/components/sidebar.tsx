@@ -24,15 +24,18 @@ const navItems = [
 const chainItems = [
   { 
     name: 'Solana', 
-    path: '/chain/solana'
+    path: '/chain/sol',
+    filter: 'sol'
   },
   { 
     name: 'Sui', 
-    path: '/chain/sui'
+    path: '/chain/sui',
+    filter: 'sui'
   },
   { 
     name: 'Base', 
-    path: '/chain/base'
+    path: '/chain/base',
+    filter: 'base'
   }
 ]
 

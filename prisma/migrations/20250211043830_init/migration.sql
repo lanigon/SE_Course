@@ -1,0 +1,8 @@
+-- CreateTable
+CREATE TABLE "Favorite" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" TEXT NOT NULL,
+    "symbol" TEXT NOT NULL,
+    "chain" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
